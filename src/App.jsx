@@ -1,14 +1,27 @@
-import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Outlet, Route, Routes } from "react-router-dom";
-import { Container } from "react-bootstrap";
 
-import { BrokerViews } from "./views/BrokerViews.jsx";
+import { Login } from "./components/auth/Login.jsx";
+import { Register } from "./components/auth/Register.jsx";
+import { Authorized } from "./views/Authorized.jsx";
+import { ApplicationViews } from "./views/ApplicationViews.jsx";
+import { Route, Routes } from "react-router-dom";
 
 const App = () => {
   return (
     <>
-      <BrokerViews />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        <Route
+          path="*"
+          element={
+            <Authorized>
+              <ApplicationViews />
+            </Authorized>
+          }
+        />
+      </Routes>
     </>
   );
 };
