@@ -18,7 +18,7 @@ export const BrokerNav = () => {
         <Navbar.Toggle />
         <Navbar.Collapse>
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">
+            <Nav.Link as={Link} to="/home">
               Home
             </Nav.Link>
             <Nav.Link as={Link} to="/clients">
