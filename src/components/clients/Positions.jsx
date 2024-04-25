@@ -15,7 +15,9 @@ export const Positions = ({ clientId }) => {
   return (
     <>
       {positions.map((position) => (
-        <div key={position.id}>Ticker: {position.stock.ticker}</div>
+        <div key={position.id}>
+          {position.stock.ticker} - {position.shares} shares
+        </div>
       ))}
     </>
   );
