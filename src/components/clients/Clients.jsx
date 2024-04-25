@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
-import { Button, Container, Row, Col } from "react-bootstrap";
+import { Button, Container, Row, Col, Card } from "react-bootstrap";
 import {
   getBrokerByUserId,
   getClientsByBrokerId,
 } from "../../services/clientServices.jsx";
+import { Positions } from "./Positions.jsx";
 
 export const Clients = ({ currentUser }) => {
   const [broker, setBroker] = useState({});
   const [clients, setClients] = useState([]);
-  // Calculate total cash using reduce method directly on clients state
-  const totalCash = clients.reduce((total, client) => {
-    return total + client.cash;
-  }, 0);
 
   useEffect(() => {
     if (currentUser.id) {
@@ -30,81 +27,24 @@ export const Clients = ({ currentUser }) => {
     }
   }, [broker.id]);
 
+  const renderClientCards = () => {
+    return clients.map((client) => (
+      <Col key={client.id} xs={12} sm={6} md={4} lg={3}>
+        <Card className="mb-3">
+          <Card.Body>
+            <Card.Title>{client.user.fullName}</Card.Title>
+            <Card.Text>Email: {client.user.email}</Card.Text>
+            <Card.Text>Cash: ${client.cash.toLocaleString()}</Card.Text>
+            <Card.Text>{<Positions clientId={client.id} />}</Card.Text>
+          </Card.Body>
+        </Card>
+      </Col>
+    ));
+  };
+
   return (
     <Container fluid>
-      <Row>
-        <Col className="text-center col-3" style={{ paddingTop: "80px" }}>
-          <div style={{ marginBottom: "10px" }}>
-            <Button>Open Account</Button>
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <Button>Reports</Button>
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <Button>Schedule Appointment</Button>
-          </div>
-        </Col>
-        <Col className="text-center col-9" style={{ paddingTop: "80px" }}>
-          <div>Book of Business</div>
-          <Row style={{ paddingTop: "80px" }}>
-            <Col className="text-center">
-              AUM
-              <div>${totalCash.toLocaleString()}</div>{" "}
-              {/* Display total cash */}
-            </Col>
-            <Col className="text-center">Clients</Col>
-            <Col className="text-center">Positions</Col>
-          </Row>
-        </Col>
-      </Row>
+      <Row>{renderClientCards()}</Row>
     </Container>
   );
 };
-
-/*export const Clients = ({ currentUser }) => {
-  const [broker, setBroker] = useState({});
-  const [clients, setClients] = useState([]);
-
-  useEffect(() => {
-    if (currentUser.id) {
-      getBrokerByUserId(currentUser.id).then((data) => {
-        const brokerObject = data[0];
-        setBroker(brokerObject);
-      });
-    }
-    if (broker.id) {
-      getClientsByBrokerId(broker.id).then((brokerClients) => {
-        setClients(brokerClients);
-      });
-    }
-  }, [broker.id, currentUser.id]);
-
-  return (
-    <Container fluid>
-      <Row>
-        <Col className="text-center col-3" style={{ paddingTop: "80px" }}>
-          <div style={{ marginBottom: "10px" }}>
-            <Button>Open Account</Button>
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <Button>Reports</Button>
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <Button>Schedule Appointment</Button>
-          </div>
-        </Col>
-        <Col className="text-center col-9" style={{ paddingTop: "80px" }}>
-          <div>Book of Business</div>
-          <Row style={{ paddingTop: "80px" }}>
-            <Col className="text-center">
-              AUM
-              <div>clients</div>
-            </Col>
-            <Col className="text-center">Clients</Col>
-            <Col className="text-center">Positions</Col>
-          </Row>
-        </Col>
-      </Row>
-    </Container>
-  );
-};*/

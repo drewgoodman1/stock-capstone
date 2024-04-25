@@ -6,7 +6,13 @@ export const getBrokerByUserId = (userId) => {
 };
 export const getClientsByBrokerId = (brokerId) => {
   console.log(brokerId);
-  return fetch(`http://localhost:8088/clients?brokerId=${brokerId}`).then(
-    (res) => res.json()
-  );
+  return fetch(
+    `http://localhost:8088/clients?brokerId=${brokerId}&_expand=user`
+  ).then((res) => res.json());
+};
+export const getPositionsByClientId = (clientId) => {
+  console.log(clientId);
+  return fetch(
+    `http://localhost:8088/positions?clientId=${clientId}&_expand=stock`
+  ).then((res) => res.json());
 };
