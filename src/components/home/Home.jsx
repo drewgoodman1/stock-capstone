@@ -4,6 +4,7 @@ import {
   getBrokerByUserId,
   getClientsByBrokerId,
 } from "../../services/clientServices.jsx";
+import { fetchStockData } from "../../services/marketData.jsx";
 
 export const Home = ({ currentUser }) => {
   const [broker, setBroker] = useState({});
@@ -55,6 +56,13 @@ export const Home = ({ currentUser }) => {
       });
     }
   }, [broker.id]);
+
+  const getDataForMarket = async () => {
+    const market = await fetchStockData("SPY", "5min", "13RMED77ZTUQQUK1");
+    console.log(market);
+  };
+
+  getDataForMarket();
 
   return (
     <Container fluid>

@@ -25,6 +25,8 @@ export const Trading = ({ currentUser }) => {
   const [stocks, setStocks] = useState([]);
   const [positions, setPositions] = useState([]);
 
+  const [refreshPositions, setRefreshPositions] = useState(false);
+
   //for current broker
   useEffect(() => {
     if (currentUser.id) {
@@ -52,10 +54,16 @@ export const Trading = ({ currentUser }) => {
   }, []);
 
   useEffect(() => {
-    getPositionsByClientId(selectedClient).then((currentPositions) => {
-      setPositions(currentPositions);
-    });
-  }, [selectedClient]);
+    if (selectedClient) {
+      getPositionsByClientId(selectedClient)
+        .then((currentPositions) => {
+          setPositions(currentPositions);
+        })
+        .catch((error) => {
+          console.error("Error fetching positions:", error);
+        });
+    }
+  }, [selectedClient, refreshPositions]);
 
   //handle dropdown and form
   const handleClientSelect = (clientId) => {
@@ -79,26 +87,29 @@ export const Trading = ({ currentUser }) => {
       typeID: 1, // Placeholder value, replace with actual type ID
     };
 
-    buyStock(newPosition);
-
-    setNumberOfShares("");
-    setTickerSymbol(""); // Reset tickerSymbol after buy
+    try {
+      await buyStock(newPosition);
+      setRefreshPositions(!refreshPositions);
+      setNumberOfShares("");
+      setTickerSymbol("");
+    } catch (error) {
+      console.error("Error buying stock:", error);
+    }
   };
 
-  const handleSell = () => {
-    getPositionsByClientId(selectedClient).then((positions) => {
+  const handleSell = async () => {
+    try {
+      const positions = await getPositionsByClientId(selectedClient);
       const sellThisStock = positions.find(
         (position) => position.stockId === parseInt(tickerSymbol)
       );
 
       if (sellThisStock) {
         if (sellThisStock.shares === parseInt(numberOfShares)) {
-          sellAllStock(sellThisStock);
+          await sellAllStock(sellThisStock);
         } else {
-          sellThisStock.shares =
-            sellThisStock.shares - parseInt(numberOfShares);
-          console.log("Found position to sell:", sellThisStock);
-          sellStock(sellThisStock);
+          sellThisStock.shares -= parseInt(numberOfShares);
+          await sellStock(sellThisStock);
         }
         // Reset form fields
         setNumberOfShares("");
@@ -109,7 +120,11 @@ export const Trading = ({ currentUser }) => {
           tickerSymbol
         );
       }
-    });
+
+      setRefreshPositions(!refreshPositions); // Toggle refreshPositions
+    } catch (error) {
+      console.error("Error selling stock:", error);
+    }
   };
 
   return (
@@ -156,7 +171,7 @@ export const Trading = ({ currentUser }) => {
                             <Card.Text>
                               <strong>Positions:</strong>{" "}
                               <Positions
-                                clientId={selectedClient}
+                                //clientId={selectedClient}
                                 positions={positions}
                               />
                             </Card.Text>

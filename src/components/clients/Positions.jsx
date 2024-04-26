@@ -1,24 +1,28 @@
-import React, { useEffect, useState } from "react";
+/*import React, { useEffect, useState } from "react";
 import { getPositionsByClientId } from "../../services/clientServices.jsx";
 
-export const Positions = ({ clientId }) => {
-  const [positions, setPositions] = useState([]);
+export const Positions = ({ positions }) => {
+  //
+  //passing clientId
+  //const [positions, setPositions] = useState([]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (clientId) {
       getPositionsByClientId(clientId).then((currentPositions) => {
         setPositions(currentPositions);
       });
     }
-  }, [clientId]);
+  }, [clientId]);*/
 
+export const Positions = ({ positions }) => {
   return (
     <>
-      {positions.map((position) => (
-        <div key={position.id}>
-          {position.stock.ticker} - {position.shares} shares
-        </div>
-      ))}
+      {positions &&
+        positions.map((position) => (
+          <div key={position.id}>
+            {position.stock.ticker} - {position.shares} shares
+          </div>
+        ))}
     </>
   );
 };
