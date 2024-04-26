@@ -16,13 +16,3 @@ export const getPositionsByClientId = (clientId) => {
     `http://localhost:8088/positions?clientId=${clientId}&_expand=stock`
   ).then((res) => res.json());
 };
-
-export const buyStock = (newPosition) => {
-  return fetch(`http://localhost:8088/postions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(newPosition),
-  });
-};
