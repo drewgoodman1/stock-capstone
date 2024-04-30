@@ -4,6 +4,7 @@ import { Welcome } from "../components/welcome/Welcome.jsx";
 import { Clients } from "../components/clients/Clients.jsx";
 import { Home } from "../components/home/Home.jsx";
 import { Trading } from "../components/trading/Trading.jsx";
+import { CandlestickChart } from "../components/home/CandlestickChart.jsx";
 
 export const BrokerViews = ({ currentUser }) => {
   return (

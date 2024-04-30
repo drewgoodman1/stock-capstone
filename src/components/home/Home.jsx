@@ -1,203 +1,135 @@
-import React, { useEffect, useState } from "react";
-import { Button, Container, Row, Col, Card } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Line } from "react-chartjs-2";
+import { restClient } from "@polygon.io/client-js";
+import { Chart } from "chart.js";
 import {
-  getBrokerByUserId,
-  getClientsByBrokerId,
-} from "../../services/clientServices.jsx";
-import { fetchStockData } from "../../services/marketData.jsx";
+  LinearScale,
+  CategoryScale,
+  PointElement,
+  LineElement,
+  TimeScale,
+} from "chart.js";
+
+// Register Chart.js components
+Chart.register(
+  LinearScale,
+  CategoryScale,
+  PointElement,
+  LineElement,
+  TimeScale
+);
 
 export const Home = ({ currentUser }) => {
-  const [broker, setBroker] = useState({});
-  const [clients, setClients] = useState([]);
-  const [totalAUM, setTotalAUM] = useState(0);
-  const [topClients, setTopClients] = useState([]);
-  const [topPositions, setTopPositions] = useState([]);
+  const [stockData, setStockData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (currentUser.id) {
-      getBrokerByUserId(currentUser.id).then((data) => {
-        const brokerObject = data[0];
-        setBroker(brokerObject);
-      });
-    }
-  }, [currentUser.id]);
-
-  useEffect(() => {
-    if (broker.id) {
-      getClientsByBrokerId(broker.id).then((brokerClients) => {
-        setClients(brokerClients);
-
-        // Calculate total AUM
-        const totalAum = brokerClients.reduce((total, client) => {
-          return total + client.cash;
-        }, 0);
-        setTotalAUM(totalAum);
-
-        // Find top clients (you can adjust this logic based on your criteria)
-        const sortedClients = [...brokerClients].sort(
-          (a, b) => b.totalInvestment - a.totalInvestment
+    const fetchData = async () => {
+      try {
+        const rest = restClient("GTE7BHpDFGOzxvmpSdKEkOMKnyOyWmpl");
+        const data = await rest.stocks.aggregates(
+          "SPY",
+          1,
+          "day",
+          "2023-04-01",
+          "2024-04-01"
         );
-        const topClients = sortedClients.slice(0, 3);
-        setTopClients(topClients);
+        setStockData(data);
+        setLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
 
-        // Find top positions (you can adjust this logic based on your criteria)
-        const allPositions = brokerClients.flatMap(
-          (client) => client.positions
-        );
-        const positionCounts = allPositions.reduce((counts, position) => {
-          counts[position] = (counts[position] || 0) + 1;
-          return counts;
-        }, {});
-        const sortedPositions = Object.entries(positionCounts).sort(
-          (a, b) => b[1] - a[1]
-        );
-        const topPositions = sortedPositions.slice(0, 3);
-        setTopPositions(topPositions);
-      });
-    }
-  }, [broker.id]);
-
-  const getDataForMarket = async () => {
-    const market = await fetchStockData("SPY", "5min", "13RMED77ZTUQQUK1");
-    console.log(market);
-  };
-
-  getDataForMarket();
+    fetchData();
+  }, []);
 
   return (
-    <Container fluid>
-      <Row className="mt-4">
-        <Col xs={12} md={4} className="text-center">
-          <Card>
-            <Card.Body>
-              <Card.Title>Actions</Card.Title>
-              <div style={{ marginBottom: "10px" }}>
-                <Button block>Open Account</Button>
+    <div className="container">
+      <div className="row justify-content-center">
+        <div className="col-12">
+          <h1 className="my-4 text-center">Market Data</h1>
+        </div>
+      </div>
+      <div className="row justify-content-center">
+        <div className="col-12 col-md-8">
+          {loading ? (
+            <p className="text-center">Loading...</p>
+          ) : error ? (
+            <p className="text-center">Error: {error}</p>
+          ) : (
+            <div>
+              <div className="text-center">
+                <p>{stockData ? stockData.ticker + " Last 12 Months" : ""}</p>
               </div>
-              <div style={{ marginBottom: "10px" }}>
-                <Button block>Reports</Button>
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                <Button block>Schedule Appointment</Button>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col xs={12} md={8} className="text-center">
-          <Card>
-            <Card.Body>
-              <Card.Title>Book of Business</Card.Title>
-              <Row className="mt-4">
-                <Col>
-                  <Card>
-                    <Card.Body>
-                      <Card.Title>Total AUM</Card.Title>
-                      <Card.Text>${totalAUM.toLocaleString()}</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                <Col>
-                  <Card>
-                    <Card.Body>
-                      <Card.Title>Top Clients</Card.Title>
-                      <Card.Text>
-                        {topClients.map((client) => (
-                          <div key={client.id}>{client.name}</div>
-                        ))}
-                      </Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-                <Col>
-                  <Card>
-                    <Card.Body>
-                      <Card.Title>Top Positions</Card.Title>
-                      <Card.Text>
-                        {topPositions.map(([position, count]) => (
-                          <div key={position}>{`${position}: ${count}`}</div>
-                        ))}
-                      </Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+              <Line
+                data={{
+                  labels: stockData.results.map((result) => new Date(result.t)),
+                  datasets: [
+                    {
+                      label: stockData.ticker + " last 12 months",
+                      data: stockData.results.map((result) => result.c), // Use closing prices
+                      fill: false,
+                      borderColor: "rgb(75, 192, 192)",
+                      tension: 0.1,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  scales: {
+                    x: {
+                      ticks: {
+                        display: false, // Hide x-axis labels
+                      },
+                      grid: {
+                        display: false, // Hide x-axis grid lines
+                      },
+                    },
+                    y: {
+                      type: "linear",
+                      ticks: {
+                        beginAtZero: true,
+                      },
+                    },
+                  },
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: stockData
+                        ? stockData.ticker + " Last 12 Months"
+                        : "",
+                      align: "center", // Center the title
+                    },
+                    legend: {
+                      display: false, // Hide the legend
+                    },
+                    tooltips: {
+                      mode: "index",
+                      intersect: false,
+                    },
+                  },
+                }}
+                style={{
+                  maxWidth: "400px",
+                  maxHeight: "300px",
+                  margin: "0 auto",
+                }} // Custom CSS to make the chart smaller and centered
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
-/*import { useEffect, useState } from "react";
-import { Button, Container, Row, Col } from "react-bootstrap";
-import {
-  getBrokerByUserId,
-  getClientsByBrokerId,
-} from "../../services/clientServices.jsx";
-
-export const Home = ({ currentUser }) => {
-  const [broker, setBroker] = useState({});
-  const [clients, setClients] = useState([]);
-  // Calculate total cash using reduce method directly on clients state
-  const totalCash = clients.reduce((total, client) => {
-    return total + client.cash;
-  }, 0);
-
-  useEffect(() => {
-    if (currentUser.id) {
-      getBrokerByUserId(currentUser.id).then((data) => {
-        const brokerObject = data[0];
-        setBroker(brokerObject);
-      });
-    }
-  }, [currentUser.id]);
-
-  useEffect(() => {
-    if (broker.id) {
-      getClientsByBrokerId(broker.id).then((brokerClients) => {
-        setClients(brokerClients);
-      });
-    }
-  }, [broker.id]);
-
-  return (
-    <Container fluid>
-      <Row>
-        <Col
-          xs={12}
-          md={4}
-          className="text-center"
-          style={{ paddingTop: "80px" }}
-        >
-          <div style={{ marginBottom: "10px" }}>
-            <Button block>Open Account</Button>
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <Button block>Reports</Button>
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <Button block>Schedule Appointment</Button>
-          </div>
-        </Col>
-        <Col
-          xs={12}
-          md={8}
-          className="text-center"
-          style={{ paddingTop: "80px" }}
-        >
-          <div>Book of Business</div>
-          <Row style={{ paddingTop: "80px" }}>
-            <Col className="text-center">
-              AUM
-              <div>${totalCash.toLocaleString()}</div>{" "}
-              {/* Display total cash */
-// </Col>
-/* <Col className="text-center">Clients</Col>
-            <Col className="text-center">Positions / Top client posiotns</Col>
-          </Row>
-        </Col>
-      </Row>
-    </Container>
-  );
-};*/
+/*useEffect(() => {
+  getPoly().then((data) => {
+    setStockData(data);
+    console.log(data);
+  });
+}, []);*/
