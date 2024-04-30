@@ -2,9 +2,9 @@ import { Outlet, Route, Routes } from "react-router-dom";
 import { BrokerNav } from "../components/nav/BrokerNav.jsx";
 import { Welcome } from "../components/welcome/Welcome.jsx";
 import { Clients } from "../components/clients/Clients.jsx";
-import { Home } from "../components/home/Home.jsx";
+//import { Home } from "../components/home/Home.jsx";
 import { Trading } from "../components/trading/Trading.jsx";
-import { CandlestickChart } from "../components/home/CandlestickChart.jsx";
+import { BasicChart } from "../components/home/BasicChart.jsx";
 
 export const BrokerViews = ({ currentUser }) => {
   return (
@@ -20,7 +20,10 @@ export const BrokerViews = ({ currentUser }) => {
       >
         {/* Nested Route components */}
         <Route index element={<Welcome />} />
-        <Route path="/home" element={<Home currentUser={currentUser} />} />
+        <Route
+          path="/home"
+          element={<BasicChart currentUser={currentUser} />}
+        />
         <Route
           path="/clients"
           element={<Clients currentUser={currentUser} />}
