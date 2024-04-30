@@ -1,20 +1,5 @@
-export const fetchStockData = async (symbol, interval, apiKey) => {
-  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&apikey=${apiKey}`;
-
-  return fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "User-Agent": "request",
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .catch((error) => {
-      throw error;
-    });
+export const getPoly = () => {
+  return fetch(
+    `https://api.polygon.io/v2/aggs/ticker/I:NDX/range/1/year/2023-03-10/2023-03-10?sort=asc&limit=120&apiKey=GTE7BHpDFGOzxvmpSdKEkOMKnyOyWmpl`
+  ).then((res) => res.json());
 };
