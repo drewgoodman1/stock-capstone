@@ -4,6 +4,8 @@ import { Welcome } from "../components/welcome/Welcome.jsx";
 import { Clients } from "../components/clients/Clients.jsx";
 //import { Home } from "../components/home/Home.jsx";
 import { Trading } from "../components/trading/Trading.jsx";
+//import { BasicChart } from "../components/home/BasicChart.jsx";
+import { TopGainers } from "../components/home/TopGainers.jsx";
 import { BasicChart } from "../components/home/BasicChart.jsx";
 
 export const BrokerViews = ({ currentUser }) => {
@@ -22,11 +24,11 @@ export const BrokerViews = ({ currentUser }) => {
         <Route index element={<Welcome />} />
         <Route
           path="/home"
-          element={<BasicChart currentUser={currentUser} />}
+          element={<TopGainers currentUser={currentUser} />}
         />
         <Route
           path="/clients"
-          element={<Clients currentUser={currentUser} />}
+          element={<BasicChart currentUser={currentUser} />}
         />
         <Route
           path="/trading"
