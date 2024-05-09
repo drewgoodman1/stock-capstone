@@ -22,12 +22,12 @@ export const sellStock = (thisPosition) => {
     body: JSON.stringify(thisPosition),
   });
 };
-export const sellAllStock = (thisPosition) => {
-  return fetch(`http://localhost:8088/positions/${thisPosition.id}`, {
+export const sellAllStock = (positionToSell) => {
+  return fetch(`http://localhost:8088/positions/${positionToSell.id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(thisPosition),
+    body: JSON.stringify(positionToSell),
   });
 };

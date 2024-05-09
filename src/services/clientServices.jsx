@@ -12,7 +12,7 @@ export const getClientsByBrokerId = (brokerId) => {
 };
 export const getPositionsByClientId = (clientId) => {
   console.log(clientId);
-  return fetch(
-    `http://localhost:8088/positions?clientId=${clientId}&_expand=stock`
-  ).then((res) => res.json());
+  return fetch(`http://localhost:8088/positions?clientId=${clientId}`).then(
+    (res) => res.json()
+  );
 };
