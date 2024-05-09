@@ -7,6 +7,7 @@ import { Trading } from "../components/trading/Trading.jsx";
 //import { BasicChart } from "../components/home/BasicChart.jsx";
 import { TopGainers } from "../components/home/TopGainers.jsx";
 import { BasicChart } from "../components/home/BasicChart.jsx";
+import { NewTrading } from "../components/trading/NewTrading.jsx";
 
 export const BrokerViews = ({ currentUser }) => {
   return (
@@ -32,7 +33,7 @@ export const BrokerViews = ({ currentUser }) => {
         />
         <Route
           path="/trading"
-          element={<Trading currentUser={currentUser} />}
+          element={<NewTrading currentUser={currentUser} />}
         />
       </Route>
     </Routes>
